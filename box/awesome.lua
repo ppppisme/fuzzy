@@ -17,40 +17,60 @@ local results_list
 function box.init(dependencies)
   sorter = dependencies.sorter
 
+  local focused_screen = awful.screen.focused()
+  local screen_geometry = focused_screen.geometry
+  local box_width = screen_geometry.width * 0.4
+  local box_height = screen_geometry.height * 0.3
+
+  local fg = beautiful.prompt_fg or beautiful.fg_normal
+  local bg = beautiful.prompt_bg or beautiful.bg_normal
+
   widget = wibox {
-      x = 100,
-      y = 100,
-      width = 300,
-      height = 500,
-      bg = "#ff0000",
-      visible = false,
-      ontop = true,
-    }
+    x = (screen_geometry.width - box_width) / 2,
+    y = (screen_geometry.height - box_height) / 2,
+    width = box_width,
+    height = box_height,
+    bg = bg,
+    visible = false,
+    ontop = true,
+    screen = focused_screen,
+  }
 
   local background = require("wibox.container.background")
   local textbox = require("wibox.widget.textbox")
 
   promptbox = background()
   promptbox.widget = textbox()
-  promptbox.fg = beautiful.prompt_fg or beautiful.fg_normal
-  promptbox.bg = beautiful.prompt_bg or beautiful.bg_normal
+  promptbox.fg = fg
+  promptbox.bg = bg
 
   results_list = background()
   results_list.widget = textbox()
   results_list.widget.forced_height = 300
-  results_list.fg = "#ffffff"
-  results_list.bg = "#000000"
+  results_list.fg = fg
+  results_list.bg = bg
 
   widget:setup({
-      layout = wibox.layout.fixed.vertical,
-      promptbox,
-      results_list,
+      layout = wibox.container.margin,
+      left = 20,
+      right = 20,
+      top = 20,
+      bottom = 20,
+      {
+        layout = wibox.layout.fixed.vertical,
+        {
+          layout = wibox.container.margin,
+          bottom = 16,
+          promptbox,
+        },
+        results_list,
+      }
     })
 end
 
 function box.show(list, callback)
   awful.prompt.run {
-    textbox      = promptbox.widget,
+    textbox = promptbox.widget,
     exe_callback = function(input)
       if input and #input > 0 then
         callback(list[1], input)

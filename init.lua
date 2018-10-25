@@ -17,9 +17,9 @@ function fuzzy.init(options)
   }
 end
 
-function fuzzy.show(configuration)
-  local source = configuration.source
-  local launcher = configuration.launcher
+function fuzzy.show(config)
+  local source = config.source
+  local launcher = config.launcher
 
   box.show(source.get(), function(item, input)
     launcher.launch(item, input)
