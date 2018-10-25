@@ -7,16 +7,11 @@ local os = require("os")
 
 local box = {}
 
--- dependencies
-local sorter
-
 local widget
 local promptbox
 local results_list
 
-function box.init(dependencies)
-  sorter = dependencies.sorter
-
+function box.init()
   local focused_screen = awful.screen.focused()
   local screen_geometry = focused_screen.geometry
   local box_width = screen_geometry.width * 0.4
@@ -68,12 +63,12 @@ function box.init(dependencies)
     })
 end
 
-function box.show(list, callback)
+function box.show(list, process_callback, exe_callback)
   awful.prompt.run {
     textbox = promptbox.widget,
     exe_callback = function(input)
       if input and #input > 0 then
-        callback(list[1], input)
+        exe_callback(list[1], input)
       end
     end,
     done_callback = function()
@@ -83,8 +78,8 @@ function box.show(list, callback)
       local output_text = ""
 
       -- local start_time = os.clock()
-      list = sorter.sort(list, input)
-      for _, item in pairs(list) do
+      local processed_list = process_callback(list, input)
+      for _, item in pairs(processed_list) do
         output_text = output_text .. item.title .. "\n"
       end
       -- local end_time = os.clock()

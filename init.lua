@@ -1,29 +1,46 @@
 local fuzzy = {}
 
-local matcher
-local sorter
 local box
+local processors
 
 function fuzzy.init(options)
-  matcher = options.matcher or require('fuzzy.matcher.complex')
-  sorter = options.box or require('fuzzy.sorter.stupid')
-  box = options.box or require('fuzzy.box.awesome')
+  local matcher = options.matcher or require('fuzzy.matcher.complex')
+  local sorter = options.box or require('fuzzy.processor.sorter')
+  local limiter = options.limiter or require('fuzzy.processor.limiter')
+  local unique = options.limiter or require('fuzzy.processor.unique')
 
   matcher.init {}
   sorter.init { matcher = matcher }
+  limiter.init { limit = 5 }
+  unique.init { attribute_name = 'title' }
 
-  box.init {
-    sorter = sorter,
+  processors = options.processors or {
+    sorter,
+    limiter,
+    unique,
   }
+
+  box = options.box or require('fuzzy.box.awesome')
+  box.init()
 end
 
 function fuzzy.show(config)
   local source = config.source
   local launcher = config.launcher
 
-  box.show(source.get(), function(item, input)
+  local processor = function(list, input)
+    for _, processor in pairs(processors) do
+      list = processor.process(list, input)
+    end
+
+    return list
+  end
+
+  local executor = function(item, input)
     launcher.launch(item, input)
-  end)
+  end
+
+  box.show(source.get(), processor, executor)
 end
 
 return fuzzy

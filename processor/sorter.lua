@@ -1,14 +1,14 @@
 local naughty = require "naughty"
 
-local sorter = {}
+local processor = {}
 
 local matcher
 
-function sorter.init(dependencies)
+function processor.init(dependencies)
   matcher = dependencies.matcher
 end
 
-function sorter.sort(list, pattern)
+function processor.process(list, pattern)
   table.sort(list, function(a, b)
     local _, a_score = matcher.match(pattern, a.title)
     local _, b_score = matcher.match(pattern, b.title)
@@ -19,4 +19,4 @@ function sorter.sort(list, pattern)
   return list
 end
 
-return sorter
+return processor
