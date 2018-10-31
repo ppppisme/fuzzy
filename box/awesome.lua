@@ -12,23 +12,13 @@ local promptbox
 local results_list
 
 function box.init()
-  local focused_screen = awful.screen.focused()
-  local screen_geometry = focused_screen.geometry
-  local box_width = screen_geometry.width * 0.4
-  local box_height = screen_geometry.height * 0.3
-
   local fg = beautiful.prompt_fg or beautiful.fg_normal
   local bg = beautiful.prompt_bg or beautiful.bg_normal
 
   widget = wibox {
-    x = (screen_geometry.width - box_width) / 2,
-    y = (screen_geometry.height - box_height) / 2,
-    width = box_width,
-    height = box_height,
     bg = bg,
     visible = false,
     ontop = true,
-    screen = focused_screen,
   }
 
   local background = require("wibox.container.background")
@@ -43,7 +33,7 @@ function box.init()
   results_list.widget = textbox()
   results_list.widget.forced_height = 300
   results_list.fg = fg
-  results_list.bg = bg
+  results_list.widget.valign = "top"
 
   widget:setup({
       layout = wibox.container.margin,
@@ -53,17 +43,23 @@ function box.init()
       bottom = 20,
       {
         layout = wibox.layout.fixed.vertical,
-        {
-          layout = wibox.container.margin,
-          bottom = 16,
-          promptbox,
-        },
+        spacing = 16,
+        promptbox,
         results_list,
       }
     })
 end
 
 function box.show(list, process_callback, exe_callback)
+  local focused_screen = awful.screen.focused({ client = true, mouse = false })
+  local screen_geometry = focused_screen.geometry
+
+  widget.screen = focused_screen
+  widget.width = screen_geometry.width * 0.4
+  widget.height = screen_geometry.height * 0.3
+  widget.x = screen_geometry.x + (screen_geometry.width - widget.width) / 2
+  widget.y = screen_geometry.y + (screen_geometry.height - widget.height) / 2
+
   awful.prompt.run {
     textbox = promptbox.widget,
     exe_callback = function(input)

@@ -16,8 +16,8 @@ function fuzzy.init(options)
 
   processors = options.processors or {
     sorter,
-    limiter,
     unique,
+    limiter,
   }
 
   box = options.box or require('fuzzy.box.awesome')
