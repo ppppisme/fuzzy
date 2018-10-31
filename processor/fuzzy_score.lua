@@ -1,7 +1,8 @@
-local matcher = {}
+local processor = {}
+local naughty = require('naughty')
 
-function matcher.init(dependencies)
-end
+local scored_attr
+local utils
 
 --- Taken from here: https://gist.github.com/blake-mealey/f7752f95aed71fe23428abb0ffba2c96
 --
@@ -10,7 +11,7 @@ end
 -- score: integer; higher is better match. Value has no intrinsic meaning. Range localies with pattern.
 --        Can only compare scores with same search pattern.
 -- matchedIndices: the indices of characters that were matched in str
-function matcher.match(pattern, str)
+local function get_score(pattern, str)
   -- Score consts
   local adjacency_bonus = 5                -- bonus for adjacent matches
   local separator_bonus = 10               -- bonus if match occurs after a separator
@@ -127,4 +128,18 @@ function matcher.match(pattern, str)
   return matched, score, matchedIndices
 end
 
-return matcher
+function processor.init(options)
+  scored_attr = options.scored_attr
+  utils = require("fuzzy.utils")
+end
+
+function processor.process(list, input)
+  for _, item in pairs(list) do
+    local value = utils.extract_value(item, scored_attr)
+    _, item.data.fuzzy_score = get_score(input, value)
+  end
+
+  return list
+end
+
+return processor

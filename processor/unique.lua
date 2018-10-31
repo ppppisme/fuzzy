@@ -1,9 +1,11 @@
 local processor = {}
 
-local attribute_name
+local unique_attr
+local utils
 
 function processor.init(config)
-  attribute_name = config.attribute_name
+  unique_attr = config.unique_attr
+  utils = require('fuzzy.utils')
 end
 
 function processor.process(list, _)
@@ -11,13 +13,11 @@ function processor.process(list, _)
   local output = {}
 
   for _, item in pairs(list) do
-    if (item[attribute_name]) then
-      local value = item[attribute_name]
+    local value = utils.extract_value(item, unique_attr)
 
-      if (not hash[value]) then
-        table.insert(output, item)
-        hash[value] = true
-      end
+    if (not hash[value]) then
+      table.insert(output, item)
+      hash[value] = true
     end
   end
 

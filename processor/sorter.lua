@@ -1,19 +1,16 @@
-local naughty = require "naughty"
-
 local processor = {}
 
-local matcher
+local sort_by
+local utils
 
-function processor.init(dependencies)
-  matcher = dependencies.matcher
+function processor.init(options)
+  sort_by = options.sort_by
+  utils = require('fuzzy.utils')
 end
 
-function processor.process(list, pattern)
+function processor.process(list, _)
   table.sort(list, function(a, b)
-    local _, a_score = matcher.match(pattern, a.title)
-    local _, b_score = matcher.match(pattern, b.title)
-
-    return a_score > b_score
+    return utils.extract_value(a, sort_by) > utils.extract_value(b, sort_by)
   end)
 
   return list
