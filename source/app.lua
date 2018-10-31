@@ -14,7 +14,7 @@ end
 local function get_xdg_menu_dirs()
   local dirs = gfilesystem.get_xdg_data_dirs()
   table.insert(dirs, 1, gfilesystem.get_xdg_data_home())
-  return gtable.map(function(dir) return dir .. 'applications/' end, dirs)
+  return gtable.map(function(dir) return dir .. "applications/" end, dirs)
 end
 
 local function rtrim(s)
@@ -47,19 +47,19 @@ local function parse_desktop_file(file)
   end
 
   if program.Name == nil then
-    program.Name = '['.. file:match("([^/]+)%.desktop$") ..']'
+    program.Name = "[".. file:match("([^/]+)%.desktop$") .."]"
   end
 
-  local cmdline = program.Exec:gsub('%%c', program.Name)
-  cmdline = cmdline:gsub('%%[fuFU]', '')
-  cmdline = cmdline:gsub('%%k', program.file)
+  local cmdline = program.Exec:gsub("%%c", program.Name)
+  cmdline = cmdline:gsub("%%[fuFU]", "")
+  cmdline = cmdline:gsub("%%k", program.file)
   if program.icon_path then
-    cmdline = cmdline:gsub('%%i', '--icon ' .. program.icon_path)
+    cmdline = cmdline:gsub("%%i", "--icon " .. program.icon_path)
   else
-    cmdline = cmdline:gsub('%%i', '')
+    cmdline = cmdline:gsub("%%i", "")
   end
   if program.Terminal == "true" then
-    cmdline = terminal .. ' -e ' .. cmdline
+    cmdline = terminal .. " -e " .. cmdline
   end
 
   program.Exec = cmdline
@@ -78,7 +78,7 @@ local function parser(file, programs)
   while info do
     local file_type = info:get_file_type()
     local file_child = enum:get_child(info)
-    if file_type == 'REGULAR' then
+    if file_type == "REGULAR" then
       local path = file_child:get_path()
       if path then
         local success, program = pcall(parse_desktop_file, path)
@@ -86,7 +86,7 @@ local function parser(file, programs)
           table.insert(programs, program)
         end
       end
-    elseif file_type == 'DIRECTORY' then
+    elseif file_type == "DIRECTORY" then
       parser(file_child, programs)
     end
 

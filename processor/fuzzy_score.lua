@@ -1,5 +1,4 @@
 local processor = {}
-local naughty = require('naughty')
 
 local scored_attr
 local utils
@@ -113,7 +112,7 @@ local function get_score(pattern, str)
 
     -- Includes "clever" isLetter check.
     prevLower = strChar == strLower and strLower ~= strUpper
-    prevSeparator = strChar == '_' or strChar == ' '
+    prevSeparator = strChar == "_" or strChar == " "
 
     strIdx = strIdx + 1
   end

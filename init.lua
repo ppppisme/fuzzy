@@ -4,14 +4,14 @@ local box
 local processors
 
 function fuzzy.init(options)
-  local sorter = options.sorter or require('fuzzy.processor.sorter')
-  local limiter = options.limiter or require('fuzzy.processor.limiter')
-  local unique = options.unique or require('fuzzy.processor.unique')
-  local fuzzy_score = options.fuzzy_score or require('fuzzy.processor.fuzzy_score')
+  local sorter = options.sorter or require("fuzzy.processor.sorter")
+  local limiter = options.limiter or require("fuzzy.processor.limiter")
+  local unique = options.unique or require("fuzzy.processor.unique")
+  local fuzzy_score = options.fuzzy_score or require("fuzzy.processor.fuzzy_score")
 
-  fuzzy_score.init { scored_attr = 'title' }
-  unique.init { unique_attr = 'title' }
-  sorter.init { sort_by = 'data.fuzzy_score' }
+  fuzzy_score.init { scored_attr = "title" }
+  unique.init { unique_attr = "title" }
+  sorter.init { sort_by = "data.fuzzy_score" }
   limiter.init { limit = 5 }
 
   processors = options.processors or {
@@ -21,7 +21,7 @@ function fuzzy.init(options)
     limiter,
   }
 
-  box = options.box or require('fuzzy.box.awesome')
+  box = options.box or require("fuzzy.box.awesome")
   box.init()
 end
 

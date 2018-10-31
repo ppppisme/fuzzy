@@ -5,7 +5,7 @@ local utils
 
 function processor.init(config)
   unique_attr = config.unique_attr
-  utils = require('fuzzy.utils')
+  utils = require("fuzzy.utils")
 end
 
 function processor.process(list, _)

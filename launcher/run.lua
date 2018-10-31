@@ -1,8 +1,8 @@
-local awful = require('awful')
+local awful = require("awful")
 
 local launcher = {}
 
-function launcher.init(dependencies)
+function launcher.init()
 end
 
 function launcher.launch(item)

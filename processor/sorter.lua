@@ -5,7 +5,7 @@ local utils
 
 function processor.init(options)
   sort_by = options.sort_by
-  utils = require('fuzzy.utils')
+  utils = require("fuzzy.utils")
 end
 
 function processor.process(list, _)

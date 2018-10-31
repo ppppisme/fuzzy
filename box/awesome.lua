@@ -2,8 +2,6 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
-local naughty = require("naughty")
-local os = require("os")
 
 local box = {}
 
@@ -73,14 +71,10 @@ function box.show(list, process_callback, exe_callback)
     changed_callback = function(input)
       local output_text = ""
 
-      -- local start_time = os.clock()
       local processed_list = process_callback(list, input)
       for _, item in pairs(processed_list) do
         output_text = output_text .. item.title .. "\n"
       end
-      -- local end_time = os.clock()
-      -- local elapsed_time = (end_time - start_time)
-      -- naughty.notify { text = tostring(elapsed_time) }
 
       results_list.widget.markup = "<tt>" .. output_text .. "</tt>"
     end,
