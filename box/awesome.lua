@@ -2,6 +2,7 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
+local gio = require("lgi").Gio
 
 local box = {}
 
@@ -71,12 +72,16 @@ function box.show(list, process_callback, exe_callback)
     changed_callback = function(input)
       local output_text = ""
 
-      local processed_list = process_callback(list, input)
-      for _, item in pairs(processed_list) do
-        output_text = output_text .. item.title .. "\n"
+      local process_wrapper = function(list, input)
+        local processed_list = process_callback(list, input)
+        for _, item in pairs(processed_list) do
+          output_text = output_text .. item.title .. "\n"
+        end
+
+        results_list.widget.markup = "<tt>" .. output_text .. "</tt>"
       end
 
-      results_list.widget.markup = "<tt>" .. output_text .. "</tt>"
+      gio.Async.call(process_wrapper)(list, input)
     end,
   }
 
