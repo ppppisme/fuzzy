@@ -50,7 +50,7 @@ function box.init()
 end
 
 function box.show(list, process_callback, exe_callback)
-  local focused_screen = awful.screen.focused({ client = true, mouse = false })
+  local focused_screen = awful.screen.focused()
   local screen_geometry = focused_screen.geometry
 
   widget.screen = focused_screen
