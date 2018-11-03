@@ -59,11 +59,13 @@ function box.show(list, process_callback, exe_callback)
   widget.x = screen_geometry.x + (screen_geometry.width - widget.width) / 2
   widget.y = screen_geometry.y + (screen_geometry.height - widget.height) / 2
 
+  local processed_list
+
   awful.prompt.run {
     textbox = promptbox.widget,
     exe_callback = function(input)
       if input and #input > 0 then
-        exe_callback(list[1], input)
+        exe_callback(processed_list[1], input)
       end
     end,
     done_callback = function()
@@ -73,7 +75,7 @@ function box.show(list, process_callback, exe_callback)
       local output_text = ""
 
       local process_wrapper = function(list, input)
-        local processed_list = process_callback(list, input)
+        processed_list = process_callback(list, input)
         for _, item in pairs(processed_list) do
           output_text = output_text .. item.title .. "\n"
         end
