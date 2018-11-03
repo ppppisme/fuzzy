@@ -5,7 +5,7 @@ local source = {}
 
 local function get_files(dir)
   local output = {}
-  local p = io.popen('find "'..dir..'" -type f')
+  local p = io.popen('find -L "'..dir..'" -type f')
   for file in p:lines() do
     table.insert(output, file)
   end
