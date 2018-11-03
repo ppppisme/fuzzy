@@ -5,7 +5,7 @@ local source = {}
 
 local function get_files(dir)
   local output = {}
-  local p = io.popen('find -L "'..dir..'" -type f')
+  local p = io.popen('find -L "'..dir..'" -type f -printf "%f\n"')
   for file in p:lines() do
     table.insert(output, file)
   end
@@ -18,13 +18,9 @@ function source.get()
 
   for path_dir in string.gmatch(os.getenv("PATH"), "[^%:]+") do
     for _, file in pairs(get_files(path_dir)) do
-      local filename = ""
-      for part in string.gmatch(file, "[^%/]+") do
-        filename = part
-      end
       table.insert(output, {
-          title = filename,
-          value = filename,
+          title = file,
+          value = file,
           data = {},
         })
     end
