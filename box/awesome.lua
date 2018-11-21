@@ -61,6 +61,17 @@ function box.show(list, process_callback, exe_callback)
 
   local processed_list
 
+  local process_wrapper = function(list, input)
+    local output_text = ""
+
+    processed_list = process_callback(list, input)
+    for _, item in pairs(processed_list) do
+      output_text = output_text .. item.title .. "\n"
+    end
+
+    results_list.widget.markup = "<tt>" .. output_text .. "</tt>"
+  end
+
   awful.prompt.run {
     textbox = promptbox.widget,
     exe_callback = function(input)
@@ -72,23 +83,11 @@ function box.show(list, process_callback, exe_callback)
       box.hide()
     end,
     changed_callback = function(input)
-      local output_text = ""
-
-      local process_wrapper = function(list, input)
-        processed_list = process_callback(list, input)
-        for _, item in pairs(processed_list) do
-          output_text = output_text .. item.title .. "\n"
-        end
-
-        results_list.widget.markup = "<tt>" .. output_text .. "</tt>"
-      end
-
       gio.Async.call(process_wrapper)(list, input)
     end,
   }
 
   widget.visible = true
-
 end
 
 function box.hide()
