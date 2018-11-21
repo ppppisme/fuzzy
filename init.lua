@@ -3,6 +3,16 @@ local fuzzy = {}
 local box
 local processors
 
+local function normalize_source_output(items)
+  for _, item in pairs (items) do
+    if not item.data then
+      item.data = {}
+    end
+  end
+
+  return items
+end
+
 function fuzzy.init(options)
   local sorter = options.sorter or require("fuzzy.processor.sorter")
   -- local limiter = options.limiter or require("fuzzy.processor.limiter")
@@ -47,7 +57,7 @@ function fuzzy.show(config)
     launcher.launch(item, input)
   end
 
-  box.show(source.get(), processor, executor)
+  box.show(normalize_source_output(source.get()), processor, executor)
 end
 
 return fuzzy
