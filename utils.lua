@@ -9,4 +9,8 @@ function utils.extract_value(array, property_path)
   return output
 end
 
+function utils.trim(string)
+  return string:gsub("^%s+", ""):gsub("%s+$", "")
+end
+
 return utils
