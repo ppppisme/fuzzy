@@ -10,6 +10,51 @@ local widget
 local promptbox
 local results_list
 
+local create_item = function()
+  local output = {
+    widget = wibox.container.background(),
+    layout = wibox.layout.fixed.horizontal,
+    {
+      widget = wibox.widget.imagebox(),
+      forced_width = 32,
+      resize = true,
+    },
+    {
+      widget = wibox.container.background(),
+      layout = wibox.layout.fixed.vertical,
+      {
+        widget = wibox.widget.textbox(),
+      },
+      {
+        widget = wibox.widget.textbox(),
+      },
+    }
+  }
+
+  return output
+end
+
+local function update_list(items)
+  for i = 1, 5 do
+    local title = ""
+    local description = ""
+
+    if items[i] then
+      local item = items[i]
+
+      if (item.title) then
+        title = item.title
+      end
+      if (item.description) then
+        description = "<span color='#7c6f64'>" .. item.description .. "</span>"
+      end
+    end
+
+    results_list[i][1][2][1].widget:set_markup_silently(title)
+    results_list[i][1][2][2].widget:set_markup_silently(description)
+  end
+end
+
 function box.init()
   local fg = beautiful.prompt_fg or beautiful.fg_normal
   local bg = beautiful.prompt_bg or beautiful.bg_normal
@@ -28,13 +73,22 @@ function box.init()
   promptbox.fg = fg
   promptbox.bg = bg
 
-  results_list = background()
-  results_list.widget = textbox()
-  results_list.widget.forced_height = 300
-  results_list.fg = fg
-  results_list.widget.valign = "top"
+  results_list = {
+    widget = background(),
+    layout = wibox.layout.fixed.vertical,
+  }
 
-  widget:setup({
+  for i = 0, 5 do
+    if i ~= 5 then
+      table.insert(results_list, {
+        widget = wibox.container.margin,
+        bottom = 10,
+        create_item(),
+      })
+    end
+  end
+
+  widget:setup {
       layout = wibox.container.margin,
       left = 20,
       right = 20,
@@ -46,7 +100,7 @@ function box.init()
         promptbox,
         results_list,
       }
-    })
+    }
 end
 
 function box.show(list, process_callback, exe_callback)
@@ -62,14 +116,8 @@ function box.show(list, process_callback, exe_callback)
   local processed_list
 
   local process_wrapper = function(list, input)
-    local output_text = ""
-
     processed_list = process_callback(list, input)
-    for _, item in pairs(processed_list) do
-      output_text = output_text .. item.title .. "\n"
-    end
-
-    results_list.widget.markup = "<tt>" .. output_text .. "</tt>"
+    update_list(processed_list)
   end
 
   awful.prompt.run {
