@@ -1,6 +1,7 @@
 local gtable = require("gears.table")
 local gfilesystem = require("gears.filesystem")
 local gio = require("lgi").Gio
+local icon_theme = require("menubar.icon_theme")
 
 local source = {}
 
@@ -101,16 +102,23 @@ function source.get()
 
   local result = {}
 
+  local theme = icon_theme()
   local dirs = get_xdg_menu_dirs()
   for _, dir_path in pairs(dirs) do
     parser(gio.File.new_for_path(dir_path), result)
   end
 
   for _, item in pairs(result) do
+    local image = nil
+    if item.Icon then
+      image = theme:find_icon_path(item.Icon, 32)
+    end
+
     table.insert(output, {
         title = item.Name or nil,
         description = item.Comment or nil,
         value = item.Exec or item.TryExec or nil,
+        image = image,
         data = item,
       })
   end
