@@ -20,6 +20,7 @@ function source.get()
     for _, file in pairs(get_files(path_dir)) do
       table.insert(output, {
           title = file,
+          description = path_dir .. "/" .. file,
           value = file,
           data = {},
         })
