@@ -8,6 +8,7 @@ local function normalize_source_output(items)
     items[i] = {
       title = item.title or "",
       description = item.description or "",
+      value = item.value or "",
       image = item.image or "",
       data = item.data or {},
     }
