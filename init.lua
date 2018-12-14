@@ -4,10 +4,13 @@ local box
 local processors
 
 local function normalize_source_output(items)
-  for _, item in pairs (items) do
-    if not item.data then
-      item.data = {}
-    end
+  for i, item in pairs (items) do
+    items[i] = {
+      title = item.title or "",
+      description = item.description or "",
+      image = item.image or "",
+      data = item.data or {},
+    }
   end
 
   return items

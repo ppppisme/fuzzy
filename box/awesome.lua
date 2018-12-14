@@ -15,9 +15,14 @@ local create_item = function()
     widget = wibox.container.background(),
     layout = wibox.layout.fixed.horizontal,
     {
-      widget = wibox.widget.imagebox(),
-      forced_width = 32,
-      resize = true,
+      widget = wibox.container.margin,
+      right = 15,
+      {
+        widget = wibox.widget.imagebox(),
+        forced_width = 32,
+        forced_height = 32,
+        resize = true,
+      },
     },
     {
       widget = wibox.container.background(),
@@ -38,6 +43,7 @@ local function update_list(items)
   for i = 1, 5 do
     local title = ""
     local description = ""
+    local image = nil
 
     if items[i] then
       local item = items[i]
@@ -48,8 +54,12 @@ local function update_list(items)
       if (item.description) then
         description = "<span color='#7c6f64'>" .. item.description .. "</span>"
       end
+      if (item.image) then
+        image = item.image
+      end
     end
 
+    results_list[i][1][1][1].widget:set_image(image)
     results_list[i][1][2][1].widget:set_markup_silently(title)
     results_list[i][1][2][2].widget:set_markup_silently(description)
   end
