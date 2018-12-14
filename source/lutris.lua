@@ -25,6 +25,8 @@ function source.get()
     table.insert(output, {
         title = utils.trim(temp[2]),
         value = utils.trim(temp[1]),
+        image = "/home/pppp/.local/share/icons/hicolor/32x32/apps/lutris_" .. utils.trim(temp[3]) .. ".png",
+        description = utils.trim(temp[4]),
       })
   end
 
