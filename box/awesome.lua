@@ -121,6 +121,7 @@ function box.show(list, process_callback, exe_callback)
   end
 
   awful.prompt.run {
+    prompt = '<b>:: </b>',
     textbox = promptbox.widget,
     exe_callback = function(input)
       if input and #input > 0 then
