@@ -75,16 +75,13 @@ function box.init()
     ontop = true,
   }
 
-  local background = require("wibox.container.background")
-  local textbox = require("wibox.widget.textbox")
-
-  promptbox = background()
-  promptbox.widget = textbox()
-  promptbox.fg = fg
-  promptbox.bg = bg
+  promptbox = {
+    widget = wibox.widget.textbox(),
+    fg = fg,
+  }
 
   results_list = {
-    widget = background(),
+    widget = wibox.container.background(),
     layout = wibox.layout.fixed.vertical,
   }
 
