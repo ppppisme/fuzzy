@@ -1,4 +1,5 @@
 local utils = {}
+local naughty = require("naughty")
 
 function utils.extract_value(array, property_path)
   local output = array
@@ -11,6 +12,27 @@ end
 
 function utils.trim(string)
   return string:gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+function utils.dump(table)
+  if not naughty then
+    naughty = require("naughty")
+  end
+
+  local function dump(t)
+    if type(t) == "table" then
+        local s = "{ "
+        for k, v in pairs(t) do
+          if type(k) ~= "number" then k = '"'..k..'"' end
+          s = s .. "["..k.."] = " .. dump(v) .. ","
+        end
+        return s .. "} "
+    end
+
+    return tostring(t)
+  end
+
+  naughty.notify { text = dump(table), timeout = 0 }
 end
 
 return utils
