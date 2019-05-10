@@ -29,7 +29,7 @@ function fuzzy.init(options)
   sorter.init { sort_by = "data.fuzzy_score" }
   threshold.init {
     thresholded_attr = "data.fuzzy_score",
-    threshold = 10,
+    threshold = 0.8,
   }
   -- limiter.init { limit = 20 }
 
