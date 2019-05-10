@@ -3,6 +3,7 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
 local gio = require("lgi").Gio
+local math = require("math")
 
 local box = {}
 
@@ -39,8 +40,13 @@ local create_item = function()
   return output
 end
 
-local function update_list(items)
-  for i = 1, 5 do
+local function update_list(items, active_item_index)
+  local active_item_index = active_item_index or 1
+  local first_index = math.floor((active_item_index - 1) / 5) * 5 + 1
+
+  for i = first_index, first_index + 4 do
+    local is_active = i == active_item_index
+
     local title = ""
     local description = ""
     local image = nil
@@ -50,6 +56,10 @@ local function update_list(items)
 
       if (item.title) then
         title = item.title
+
+        if is_active then
+          title = "<span underline='single' style='italic'>" .. title .. "</span>"
+        end
       end
       if (item.description) then
         description = "<span color='#7c6f64'>" .. item.description .. "</span>"
@@ -59,9 +69,10 @@ local function update_list(items)
       end
     end
 
-    results_list[i][1][1][1].widget:set_image(image)
-    results_list[i][1][2][1].widget:set_markup_silently(title)
-    results_list[i][1][2][2].widget:set_markup_silently(description)
+    local relative_index = ((i - 1) % 5) + 1
+    results_list[relative_index][1][1][1].widget:set_image(image)
+    results_list[relative_index][1][2][1].widget:set_markup_silently(title)
+    results_list[relative_index][1][2][2].widget:set_markup_silently(description)
   end
 end
 
@@ -123,10 +134,16 @@ function box.show(list, process_callback, exe_callback)
   update_list {}
 
   local processed_list
+  local active_index = 1
 
   local process_wrapper = function(list, input)
     processed_list = process_callback(list, input)
-    update_list(processed_list)
+
+    if #processed_list < active_index then
+      active_index = 1
+    end
+
+    update_list(processed_list, active_index)
   end
 
   awful.prompt.run {
@@ -134,7 +151,7 @@ function box.show(list, process_callback, exe_callback)
     textbox = promptbox.widget,
     exe_callback = function(input)
       if input and #input > 0 then
-        exe_callback(processed_list[1], input)
+        exe_callback(processed_list[active_index], input)
       end
     end,
     done_callback = function()
@@ -142,6 +159,27 @@ function box.show(list, process_callback, exe_callback)
     end,
     changed_callback = function(input)
       gio.Async.call(process_wrapper)(list, input)
+    end,
+    keypressed_callback = function(mod, key, _)
+      if processed_list == nil or #processed_list == 0 then
+        return
+      end
+
+      if mod['Shift'] == true and key == 'Tab' then
+        if active_index > 1 then
+          active_index = active_index - 1
+        end
+
+        return
+      end
+
+      if key == 'Tab' then
+        if active_index < #processed_list then
+          active_index = active_index + 1
+        end
+
+        return
+      end
     end,
   }
 
