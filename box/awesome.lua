@@ -4,6 +4,7 @@ local beautiful = require("beautiful")
 local awful = require("awful")
 local gio = require("lgi").Gio
 local math = require("math")
+local utils = require("fuzzy.utils")
 
 local box = {}
 
@@ -16,7 +17,7 @@ local create_item = function()
     widget = wibox.container.background(),
     layout = wibox.layout.fixed.horizontal,
     {
-      widget = wibox.container.margin,
+      widget = wibox.container.margin(),
       right = 15,
       {
         widget = wibox.widget.imagebox(),
@@ -54,25 +55,36 @@ local function update_list(items, active_item_index)
     if items[i] then
       local item = items[i]
 
-      if (item.title) then
+      if item.title then
         title = item.title
 
         if is_active then
           title = "<span underline='single' style='italic'>" .. title .. "</span>"
         end
       end
-      if (item.description) then
+      if item.description then
         description = "<span color='#7c6f64'>" .. item.description .. "</span>"
       end
-      if (item.image) then
+      if item.image and utils.trim(item.image) ~= "" then
         image = item.image
       end
     end
 
     local relative_index = ((i - 1) % 5) + 1
-    results_list[relative_index][1][1][1].widget:set_image(image)
-    results_list[relative_index][1][2][1].widget:set_markup_silently(title)
-    results_list[relative_index][1][2][2].widget:set_markup_silently(description)
+
+    local list_element = results_list[relative_index][1]
+    if image ~= nil then
+      list_element[1][1].widget:set_image(image)
+
+      list_element[1][1].widget.visible = true
+      list_element[1].widget:set_right(15)
+    else
+      list_element[1].widget:set_right(0)
+      list_element[1][1].widget.visible = false
+    end
+
+    list_element[2][1].widget:set_markup_silently(title)
+    list_element[2][2].widget:set_markup_silently(description)
   end
 end
 
