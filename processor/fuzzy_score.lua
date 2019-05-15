@@ -3,19 +3,18 @@ local processor = {}
 local scored_attr
 local utils
 
-local function get_score(word1, word2)
-  word1 = word1:lower()
-  word2 = word2:lower()
+local function get_score(str, pattern)
+  str = str:lower()
+  pattern = pattern:lower()
 
-  if word1 == word2 then
+  if str == pattern then
     return 1
   end
 
-  local len1 = #word1
-  local len2 = #word2
+  local len1 = #str
+  local len2 = #pattern
   if len1 < len2 then
-    word1, word2 = word2, word1
-    len1, len2 = len2, len1
+    return 0
   end
 
   local output = 0
@@ -23,7 +22,7 @@ local function get_score(word1, word2)
   local subsequent = false
 
   for i1 = 1, len1 do
-    if word1:sub(i1, i1) == word2:sub(i2, i2) then
+    if str:sub(i1, i1) == pattern:sub(i2, i2) then
       if subsequent and output > 0.1 then
         output = output - 0.1
       end
@@ -72,7 +71,7 @@ end
 function processor.process(list, input)
   for _, item in pairs(list) do
     local value = utils.extract_value(item, scored_attr)
-    item.data.fuzzy_score = get_score(input, value)
+    item.data.fuzzy_score = get_score(value, input)
   end
 
   return list
