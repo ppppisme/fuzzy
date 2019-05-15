@@ -17,50 +17,44 @@ local function get_score(str, pattern)
     return 0
   end
 
-  local output = 0
+  local penalty = 0
   local i2 = 1
   local subsequent = false
 
   for i1 = 1, len1 do
     if str:sub(i1, i1) == pattern:sub(i2, i2) then
-      if subsequent and output > 0.1 then
-        output = output - 0.1
+      if subsequent and penalty > 0.1 then
+        penalty = penalty - 0.1
       end
 
       subsequent = true
 
       if i2 == len2 then
-        output = output + (len1 - i2) * 0.1
+        penalty = penalty + (len1 - i2) * 0.1
+
         break
       end
 
       i2 = i2 + 1
     else
       subsequent = false
-
-      local penalty = 1
-
-      if i2 == 1 then
-        penalty = 0.5
-      end
-
-      output = output + penalty
+      penalty = penalty + 1
     end
   end
 
   if i2 == 1 then
-    output = len1
+    penalty = len1
   end
 
-  if output < 0 then
-    output = 0
+  if penalty < 0 then
+    penalty = 0
   end
 
-  if output > len1 then
-    output = len1
+  if penalty > len1 then
+    penalty = len1
   end
 
-  return (len1 - output) / len1
+  return (len1 - penalty) / len1
 end
 
 function processor.init(options)
