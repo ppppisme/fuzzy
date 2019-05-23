@@ -148,14 +148,20 @@ function box.show(list, process_callback, exe_callback)
   local processed_list
   local active_index = 1
 
+  local skip_processing = false
+
   local process_wrapper = function(list, input)
-    processed_list = process_callback(list, input)
+    if not skip_processing then
+      processed_list = process_callback(list, input)
+    end
 
     if #processed_list < active_index then
       active_index = 1
     end
 
     update_list(processed_list, active_index)
+
+    skip_processing = false
   end
 
   awful.prompt.run {
@@ -182,6 +188,8 @@ function box.show(list, process_callback, exe_callback)
           active_index = active_index - 1
         end
 
+        skip_processing = true
+
         return
       end
 
@@ -189,6 +197,8 @@ function box.show(list, process_callback, exe_callback)
         if active_index < #processed_list then
           active_index = active_index + 1
         end
+
+        skip_processing = true
 
         return
       end
