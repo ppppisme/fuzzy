@@ -143,9 +143,9 @@ function box.show(list, process_callback, exe_callback)
   widget.x = screen_geometry.x + (screen_geometry.width - widget.width) / 2
   widget.y = screen_geometry.y + (screen_geometry.height - widget.height) / 2
 
-  update_list {}
+  update_list(list)
 
-  local processed_list
+  local processed_list = list
   local active_index = 1
 
   local skip_processing = false
