@@ -172,9 +172,11 @@ function box.show(list, process_callback, exe_callback)
     prompt = '<b>:: </b>',
     textbox = promptbox.widget,
     exe_callback = function(input)
-      if input and #input > 0 then
-        exe_callback(processed_list[active_index], input)
+      if not processed_list[active_index] then
+        return
       end
+
+      exe_callback(processed_list[active_index], input)
     end,
     done_callback = function()
       box.hide()
