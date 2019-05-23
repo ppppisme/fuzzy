@@ -12,6 +12,10 @@ local widget
 local promptbox
 local results_list
 
+local ignored_keys = {
+  Shift_L = true,
+}
+
 local create_item = function()
   local output = {
     widget = wibox.container.background(),
@@ -180,6 +184,12 @@ function box.show(list, process_callback, exe_callback)
     end,
     keypressed_callback = function(mod, key, _)
       if processed_list == nil or #processed_list == 0 then
+        return
+      end
+
+      if ignored_keys[key] then
+        skip_processing = true
+
         return
       end
 
