@@ -155,7 +155,9 @@ function box.show(list, process_callback, exe_callback)
   local skip_processing = false
 
   local process_wrapper = function(list, input)
-    if not skip_processing then
+    if input == "" then
+      processed_list = list
+    elseif not skip_processing then
       processed_list = process_callback(list, input)
     end
 
