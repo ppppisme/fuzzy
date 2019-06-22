@@ -26,17 +26,33 @@ function fuzzy.show(options)
 
   local processor = function(list, input)
     for _, item in pairs(processors) do
-      list = item.processor(list, input, item.options)
+      list = item.callback(list, input, item.options)
     end
 
     return list
   end
 
+  local handler = options.handler
   local executor = function(item, input)
-    options.handler(item, input)
+    if type(handler) == "table" then
+      handler.callback(item, input, handler.options)
+
+      return
+    end
+
+    handler(item, input)
   end
 
-  box.show(normalize_source_output(options.source()), processor, executor)
+  local source = options.source
+  local list
+
+  if type(source) == "table" then
+    list = source.callback(source.options)
+  else
+    list = source()
+  end
+
+  box.show(normalize_source_output(list), processor, executor)
 end
 
 return fuzzy
