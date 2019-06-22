@@ -21,7 +21,18 @@ local ignored_keys = {
 local function calc_height()
   local font_height = math.ceil(beautiful.get_font_height(beautiful.font))
 
-  return 40 + 16 + font_height + (font_height * 2 + 10) * options.lines
+  local margins = beautiful.fuzzy_margin or {
+    20, 20, 20, 20
+  }
+
+  local prompt_spacing = beautiful.fuzzy_prompt_spacing or 16
+  local items_margin = beautiful.fuzzy_items_margin or 10
+
+  return margins[1]
+    + margins[3]
+    + prompt_spacing
+    + font_height
+    + (font_height * 2 + items_margin) * options.lines
 end
 
 local create_item = function()
@@ -30,11 +41,11 @@ local create_item = function()
     layout = wibox.layout.fixed.horizontal,
     {
       widget = wibox.container.margin(),
-      right = 15,
+      right = beautiful.fuzzy_image_spacing or 16,
       {
         widget = wibox.widget.imagebox(),
-        forced_width = 32,
-        forced_height = 32,
+        forced_width = beautiful.fuzzy_image_size or 32,
+        forced_height = beautiful.fuzzy_image_size or 32,
         resize = true,
       },
     },
@@ -59,6 +70,9 @@ local function update_list(items, active_item_index)
   local active_item_index = active_item_index or 1
   local first_index = math.floor((active_item_index - 1) / lines) * lines + 1
 
+  local muted_color = beautiful.fuzzy_fg_muted or beautiful.fg_normal
+  local image_spacing = beautiful.fuzzy_image_spacing or 16
+
   for i = first_index, first_index + lines - 1 do
     local is_active = i == active_item_index
 
@@ -77,7 +91,7 @@ local function update_list(items, active_item_index)
         end
       end
       if item.description then
-        description = "<span color='#7c6f64'>" .. item.description .. "</span>"
+        description = "<span color='" .. muted_color .. "'>" .. item.description .. "</span>"
       end
       if item.image and utils.trim(item.image) ~= "" then
         image = item.image
@@ -91,7 +105,7 @@ local function update_list(items, active_item_index)
       list_element[1][1].widget:set_image(image)
 
       list_element[1][1].widget.visible = true
-      list_element[1].widget:set_right(15)
+      list_element[1].widget:set_right(image_spacing)
     else
       list_element[1][1].widget:set_image(nil)
 
@@ -107,20 +121,17 @@ end
 function box.init(_options)
   options = _options or {}
 
-  local fg = beautiful.prompt_fg or beautiful.fg_normal
-  local bg = beautiful.prompt_bg or beautiful.bg_normal
-
   widget = wibox {
-    bg = bg,
+    bg = beautiful.fuzzy_bg or beautiful.bg_normal,
+    fg = beautiful.fuzzy_fg or beautiful.fg_normal,
     visible = false,
     ontop = true,
-    border_width = beautiful.border_width,
-    border_color = beautiful.border_focus,
+    border_width = beautiful.fuzzy_border_width or beautiful.border_width,
+    border_color = beautiful.fuzzy_border_color or beautiful.border_focus,
   }
 
   promptbox = {
     widget = wibox.widget.textbox(),
-    fg = fg,
   }
 
   results_list = {
@@ -128,23 +139,27 @@ function box.init(_options)
     layout = wibox.layout.fixed.vertical,
   }
 
-  for i = 1, options.lines do
+  for _ = 1, options.lines do
     table.insert(results_list, {
       widget = wibox.container.margin,
-      bottom = 10,
+      bottom = beautiful.fuzzy_items_margin or 10,
       create_item(),
     })
   end
 
+  local margins = beautiful.fuzzy_margin or {
+    20, 20, 20, 20
+  }
+
   widget:setup {
       layout = wibox.container.margin,
-      left = 20,
-      right = 20,
-      top = 20,
-      bottom = 20,
+      top = margins[1],
+      right = margins[2],
+      bottom = margins[3],
+      left = margins[4],
       {
         layout = wibox.layout.fixed.vertical,
-        spacing = 16,
+        spacing = beautiful.fuzzy_prompt_spacing or 16,
         promptbox,
         results_list,
       }
@@ -190,7 +205,7 @@ function box.show(source_callback, process_callback, exe_callback)
   end
 
   awful.prompt.run {
-    prompt = '<b>:: </b>',
+    prompt = beautiful.fuzzy_prompt or "<b>:: </b>",
     textbox = promptbox.widget,
     exe_callback = function(input)
       if not processed_list[active_index] then
