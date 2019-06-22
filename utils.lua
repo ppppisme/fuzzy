@@ -35,4 +35,24 @@ function utils.dump(table)
   naughty.notify { text = dump(table), timeout = 0 }
 end
 
+function utils.prepare_handler(handler)
+  if type(handler) == "function" then
+    return handler
+  end
+
+  return function (item, input, _)
+    return handler.callback(item, input, handler.options or nil)
+  end
+end
+
+function utils.prepare_source(source)
+  if type(source) == "function" then
+    return source
+  end
+
+  return function ()
+    return source.callback(source.options or nil)
+  end
+end
+
 return utils

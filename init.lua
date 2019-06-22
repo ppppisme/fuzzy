@@ -1,6 +1,7 @@
 local fuzzy = {}
 
 local box
+local utils = require("fuzzy.utils")
 
 local function normalize_source_output(items)
   for i, item in pairs (items) do
@@ -32,31 +33,18 @@ function fuzzy.show(options)
     return list
   end
 
-  local handler = options.handler
-  local executor = function(item, input)
-    if type(handler) == "table" then
-      handler.callback(item, input, handler.options)
+  local handler = utils.prepare_handler(options.handler)
 
-      return
-    end
-
-    handler(item, input)
-  end
-
-  local source = options.source
+  local source = utils.prepare_source(options.source)
   local list
 
   if options.cache then
     list = options.cache(source)
   else
-    if type(source) == "table" then
-      list = source.callback(source.options)
-    else
-      list = source()
-    end
+    list = source()
   end
 
-  box.show(normalize_source_output(list), processor, executor)
+  box.show(normalize_source_output(list), processor, handler)
 end
 
 return fuzzy
