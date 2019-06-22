@@ -38,7 +38,7 @@ function fuzzy.show(options)
     launcher.launch(item, input)
   end
 
-  box.show(normalize_source_output(source.get()), processor, executor)
+  box.show(normalize_source_output(source()), processor, executor)
 end
 
 return fuzzy
