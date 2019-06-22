@@ -19,7 +19,7 @@ end
 
 function fuzzy.init(options)
   box = options.box or require("fuzzy.box.awesome")
-  box.init()
+  box.init(options.box_options or {})
 end
 
 function fuzzy.show(options)

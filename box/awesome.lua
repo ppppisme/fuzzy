@@ -8,6 +8,8 @@ local utils = require("fuzzy.utils")
 
 local box = {}
 
+local options
+
 local widget
 local promptbox
 local results_list
@@ -19,7 +21,7 @@ local ignored_keys = {
 local function calc_height()
   local font_height = math.ceil(beautiful.get_font_height(beautiful.font))
 
-  return 40 + font_height + (font_height * 2 * 1.05 + 10) * 5
+  return 40 + 16 + font_height + (font_height * 2 + 10) * options.lines
 end
 
 local create_item = function()
@@ -52,10 +54,12 @@ local create_item = function()
 end
 
 local function update_list(items, active_item_index)
-  local active_item_index = active_item_index or 1
-  local first_index = math.floor((active_item_index - 1) / 5) * 5 + 1
+  local lines = options.lines
 
-  for i = first_index, first_index + 4 do
+  local active_item_index = active_item_index or 1
+  local first_index = math.floor((active_item_index - 1) / lines) * lines + 1
+
+  for i = first_index, first_index + lines - 1 do
     local is_active = i == active_item_index
 
     local title = ""
@@ -80,7 +84,7 @@ local function update_list(items, active_item_index)
       end
     end
 
-    local relative_index = ((i - 1) % 5) + 1
+    local relative_index = ((i - 1) % lines) + 1
 
     local list_element = results_list[relative_index][1]
     if image ~= nil then
@@ -100,7 +104,9 @@ local function update_list(items, active_item_index)
   end
 end
 
-function box.init()
+function box.init(_options)
+  options = _options or {}
+
   local fg = beautiful.prompt_fg or beautiful.fg_normal
   local bg = beautiful.prompt_bg or beautiful.bg_normal
 
@@ -122,14 +128,12 @@ function box.init()
     layout = wibox.layout.fixed.vertical,
   }
 
-  for i = 0, 5 do
-    if i ~= 5 then
-      table.insert(results_list, {
-        widget = wibox.container.margin,
-        bottom = 10,
-        create_item(),
-      })
-    end
+  for i = 1, options.lines do
+    table.insert(results_list, {
+      widget = wibox.container.margin,
+      bottom = 10,
+      create_item(),
+    })
   end
 
   widget:setup {
