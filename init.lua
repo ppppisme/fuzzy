@@ -46,10 +46,14 @@ function fuzzy.show(options)
   local source = options.source
   local list
 
-  if type(source) == "table" then
-    list = source.callback(source.options)
+  if options.cache then
+    list = options.cache(source)
   else
-    list = source()
+    if type(source) == "table" then
+      list = source.callback(source.options)
+    else
+      list = source()
+    end
   end
 
   box.show(normalize_source_output(list), processor, executor)
