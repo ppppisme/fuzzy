@@ -16,6 +16,12 @@ local ignored_keys = {
   Shift_L = true,
 }
 
+local function calc_height()
+  local font_height = math.ceil(beautiful.get_font_height(beautiful.font))
+
+  return 40 + font_height + (font_height * 2 * 1.05 + 10) * 5
+end
+
 local create_item = function()
   local output = {
     widget = wibox.container.background(),
@@ -147,7 +153,7 @@ function box.show(source_callback, process_callback, exe_callback)
 
   widget.screen = focused_screen
   widget.width = screen_geometry.width * 0.4
-  widget.height = screen_geometry.height * 0.3
+  widget.height = calc_height()
   widget.x = screen_geometry.x + (screen_geometry.width - widget.width) / 2
   widget.y = screen_geometry.y + (screen_geometry.height - widget.height) / 2
 
