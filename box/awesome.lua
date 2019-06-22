@@ -83,6 +83,8 @@ local function update_list(items, active_item_index)
       list_element[1][1].widget.visible = true
       list_element[1].widget:set_right(15)
     else
+      list_element[1][1].widget:set_image(nil)
+
       list_element[1].widget:set_right(0)
       list_element[1][1].widget.visible = false
     end
