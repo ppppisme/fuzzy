@@ -139,7 +139,7 @@ function box.init()
     }
 end
 
-function box.show(list, process_callback, exe_callback)
+function box.show(source_callback, process_callback, exe_callback)
   local focused_screen = awful.screen.focused()
   local screen_geometry = focused_screen.geometry
 
@@ -149,7 +149,12 @@ function box.show(list, process_callback, exe_callback)
   widget.x = screen_geometry.x + (screen_geometry.width - widget.width) / 2
   widget.y = screen_geometry.y + (screen_geometry.height - widget.height) / 2
 
-  update_list(list)
+  widget.visible = true
+
+  gio.Async.call(function ()
+    list = source_callback()
+    update_list(list)
+  end)()
 
   local processed_list = list
   local active_index = 1
@@ -220,11 +225,10 @@ function box.show(list, process_callback, exe_callback)
       end
     end,
   }
-
-  widget.visible = true
 end
 
 function box.hide()
+  update_list {}
   widget.visible = false
 end
 

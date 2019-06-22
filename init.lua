@@ -23,28 +23,29 @@ function fuzzy.init(options)
 end
 
 function fuzzy.show(options)
-  local processors = options.processors
+  box.show
+  (
+    function()
+      local source = utils.prepare_source(options.source)
 
-  local processor = function(list, input)
-    for _, item in pairs(processors) do
-      list = item.callback(list, input, item.options)
-    end
+      local list
+      if options.cache then
+        list = options.cache(source)
+      else
+        list = source()
+      end
 
-    return list
-  end
+      return normalize_source_output(list)
+    end,
+    function(list, input)
+      for _, item in pairs(options.processors) do
+        list = item.callback(list, input, item.options)
+      end
 
-  local handler = utils.prepare_handler(options.handler)
-
-  local source = utils.prepare_source(options.source)
-  local list
-
-  if options.cache then
-    list = options.cache(source)
-  else
-    list = source()
-  end
-
-  box.show(normalize_source_output(list), processor, handler)
+      return list
+    end,
+    utils.prepare_handler(options.handler)
+  )
 end
 
 return fuzzy
