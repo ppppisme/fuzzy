@@ -22,8 +22,6 @@ function fuzzy.init(options)
 end
 
 function fuzzy.show(options)
-  local source = options.source
-  local launcher = options.launcher
   local processors = options.processors
 
   local processor = function(list, input)
@@ -35,10 +33,10 @@ function fuzzy.show(options)
   end
 
   local executor = function(item, input)
-    launcher.launch(item, input)
+    options.handler(item, input)
   end
 
-  box.show(normalize_source_output(source()), processor, executor)
+  box.show(normalize_source_output(options.source()), processor, executor)
 end
 
 return fuzzy
