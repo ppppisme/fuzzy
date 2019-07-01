@@ -55,4 +55,12 @@ function utils.prepare_source(source)
   end
 end
 
+function utils.cache(cache, key, source)
+  if cache.get(key) == nil then
+    cache.set(key, source())
+  end
+
+  return cache.get(key)
+end
+
 return utils

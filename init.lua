@@ -1,7 +1,8 @@
 local fuzzy = {}
 
-local box
 local utils = require("fuzzy.utils")
+
+local box
 
 local function normalize_source_output(items)
   for i, item in pairs (items) do
@@ -30,7 +31,7 @@ function fuzzy.show(options)
 
       local list
       if options.cache then
-        list = options.cache(source)
+        list = utils.cache(options.cache.storage, options.cache.key, source)
       else
         list = source()
       end
