@@ -1,3 +1,4 @@
+local math = require("math")
 local utils = require("fuzzy.utils")
 
 local processors = {}
@@ -7,10 +8,6 @@ function processors.fuzzy(list, input, options)
     str = str:lower()
     pattern = pattern:lower()
 
-    if str == pattern then
-      return 1
-    end
-
     local len1 = #str
     local len2 = #pattern
 
@@ -18,20 +15,28 @@ function processors.fuzzy(list, input, options)
       return 0
     end
 
-    local penalty = 0
     local i2 = 1
+
+    local score = 0
+
     local subsequent = false
+    local includes_pattern = false
 
     for i1 = 1, len1 do
       if str:sub(i1, i1) == pattern:sub(i2, i2) then
-        if subsequent and penalty > 0.1 then
-          penalty = penalty - 0.1
+        if subsequent then
+          score = score + 1.5
+        else
+          score = score + (len1 - i1 + 1) / len1
         end
 
         subsequent = true
 
         if i2 == len2 then
-          penalty = penalty + (len1 - i2) * 0.1
+          includes_pattern = true
+
+          -- small penalty for remaining characters to the right of str
+          score = score - (len1 - i1) * 0.0001
 
           break
         end
@@ -39,30 +44,31 @@ function processors.fuzzy(list, input, options)
         i2 = i2 + 1
       else
         subsequent = false
-        penalty = penalty + 1
       end
     end
 
-    -- if i2 == 1 then
-    --   penalty = len1
-    -- end
-
-    if penalty < 0 then
-      penalty = 0
+    if not includes_pattern then
+      return 0
     end
 
-    if penalty > len1 then
-      penalty = len1
-    end
-
-    return (len1 - penalty) / len1
+    return score
   end
 
   local attr = options.attr
+  local max_score = 0
+  local score
 
   for _, item in pairs(list) do
     local value = utils.extract_value(item, attr)
-    item.data.fuzzy_score = get_score(value, input)
+    score = get_score(value, input)
+    item.data.fuzzy_score = score
+
+    max_score = math.max(score, max_score)
+  end
+
+  -- normalize scores to fit in [0, 1] range for convenient filtering
+  for _, item in pairs(list) do
+    item.data.fuzzy_score = item.data.fuzzy_score / max_score
   end
 
   return list
@@ -89,7 +95,7 @@ function processors.threshold(list, _, options)
 
   local i = 1
   for _, item in pairs(list) do
-    if utils.extract_value(item, attr) >= threshold then
+    if utils.extract_value(item, attr)  >= threshold then
       output[i] = item
 
       i = i + 1
