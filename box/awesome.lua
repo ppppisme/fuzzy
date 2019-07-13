@@ -37,7 +37,9 @@ local function calc_height()
 end
 
 local create_item = function()
-  local output = {
+  local font_height = math.ceil(beautiful.get_font_height(beautiful.font))
+
+  return {
     widget = wibox.container.background(),
     layout = wibox.layout.fixed.horizontal,
     {
@@ -55,14 +57,14 @@ local create_item = function()
       layout = wibox.layout.fixed.vertical,
       {
         widget = wibox.widget.textbox(),
+        forced_height = font_height,
       },
       {
         widget = wibox.widget.textbox(),
+        forced_height = font_height,
       },
     }
   }
-
-  return output
 end
 
 local function update_list(items, active_item_index)
