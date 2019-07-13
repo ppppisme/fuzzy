@@ -1,5 +1,7 @@
 local utils = {}
+
 local naughty = require("naughty")
+local os
 
 function utils.extract_value(array, property_path)
   local output = array
@@ -12,6 +14,17 @@ end
 
 function utils.trim(string)
   return string:gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+function utils.exec_time(fun)
+  if not os then
+    os = require("os")
+  end
+
+  local start = os.clock()
+  fun()
+
+  return (os.clock() - start) * 1000
 end
 
 function utils.dump(table)

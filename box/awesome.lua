@@ -12,6 +12,7 @@ local options
 
 local widget
 local promptbox
+local promptbox_info
 local results_list
 
 local ignored_keys = {
@@ -134,6 +135,18 @@ function box.init(_options)
     widget = wibox.widget.textbox(),
   }
 
+  promptbox_info = {
+    align  = "right",
+    valign = "center",
+    widget = wibox.widget.textbox(),
+  }
+
+  local promptbox_container = {
+    layout = wibox.layout.align.horizontal,
+    promptbox,
+    promptbox_info,
+  }
+
   results_list = {
     widget = wibox.container.background(),
     layout = wibox.layout.fixed.vertical,
@@ -160,7 +173,7 @@ function box.init(_options)
       {
         layout = wibox.layout.fixed.vertical,
         spacing = beautiful.fuzzy_prompt_spacing or 16,
-        promptbox,
+        promptbox_container,
         results_list,
       }
     }
@@ -218,7 +231,11 @@ function box.show(source_callback, process_callback, exe_callback)
       box.hide()
     end,
     changed_callback = function(input)
-      gio.Async.call(process_wrapper)(list, input)
+      local exec_time = utils.exec_time(function ()
+        gio.Async.call(process_wrapper)(list, input)
+      end)
+
+      promptbox_info.widget:set_markup_silently(tostring(exec_time))
     end,
     keypressed_callback = function(mod, key, _)
       if processed_list == nil or #processed_list == 0 then
