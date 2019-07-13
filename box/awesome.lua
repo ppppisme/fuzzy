@@ -193,6 +193,8 @@ function box.show(source_callback, process_callback, exe_callback)
 
   widget.visible = true
 
+  local list
+
   gio.Async.call(function ()
     list = source_callback()
     update_list(list)
