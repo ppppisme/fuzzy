@@ -4,7 +4,7 @@ local utils = require("fuzzy.utils")
 local processors = {}
 
 function processors.fuzzy(list, input, options)
-  local function get_score(str, pattern)
+  local function get_score(str, pattern, max_len)
     str = str:lower()
     pattern = pattern:lower()
 
@@ -27,7 +27,7 @@ function processors.fuzzy(list, input, options)
         if subsequent then
           score = score + 1.5
         else
-          score = score + (len1 - i1 + 1) / len1
+          score = score + (max_len - i1 + 1) / max_len
         end
 
         subsequent = true
@@ -55,12 +55,23 @@ function processors.fuzzy(list, input, options)
   end
 
   local attr = options.attr
-  local max_score = 0
-  local score
 
-  for _, item in pairs(list) do
-    local value = utils.extract_value(item, attr)
-    score = get_score(value, input)
+  local max_score = 0
+  local max_len = 0
+  local score, value
+  local values = {}
+
+  for i, item in pairs(list) do
+    value = utils.extract_value(item, attr)
+    values[i] = value
+
+    max_len = math.max(#value, max_len)
+  end
+
+  for i, item in pairs(list) do
+    value = values[i]
+
+    score = get_score(value, input, max_len)
     item.data.fuzzy_score = score
 
     max_score = math.max(score, max_score)
