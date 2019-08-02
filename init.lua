@@ -24,8 +24,7 @@ function fuzzy.init(options)
 end
 
 function fuzzy.show(options)
-  box.show
-  (
+  box.show (
     function()
       local source = utils.prepare_source(options.source)
 
@@ -45,7 +44,8 @@ function fuzzy.show(options)
 
       return list
     end,
-    utils.prepare_handler(options.handler)
+    utils.prepare_handler(options.handler),
+    options.box_options or {}
   )
 end
 

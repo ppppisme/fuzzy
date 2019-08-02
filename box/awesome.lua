@@ -181,7 +181,8 @@ function box.init(_options)
     }
 end
 
-function box.show(source_callback, process_callback, exe_callback)
+function box.show(source_callback, process_callback, exe_callback, box_options)
+  local on_change = box_options.on_change or options.on_change or function () end
   local focused_screen = awful.screen.focused()
   local screen_geometry = focused_screen.geometry
 
@@ -217,6 +218,8 @@ function box.show(source_callback, process_callback, exe_callback)
     end
 
     update_list(processed_list, active_index)
+
+    on_change(processed_list[active_index])
 
     skip_processing = false
   end
