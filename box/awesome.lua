@@ -255,7 +255,8 @@ function box.show(source_callback, process_callback, exe_callback, box_options)
         return
       end
 
-      if mod['Shift'] == true and key == 'Tab' then
+      if mod["Shift"] == true and key == "Tab" or
+         mod["Control"] == true and key == "p" then
         if active_index > 1 then
           active_index = active_index - 1
         end
@@ -265,7 +266,8 @@ function box.show(source_callback, process_callback, exe_callback, box_options)
         return
       end
 
-      if key == 'Tab' then
+      if key == "Tab" or
+         mod["Control"] == true and key == "n" then
         if active_index < #processed_list then
           active_index = active_index + 1
         end
