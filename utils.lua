@@ -76,4 +76,14 @@ function utils.cache(cache, key, source)
   return cache.get(key)
 end
 
+function utils.prepare_attr_getter(getter)
+  if type(getter) == "function" then
+    return getter
+  end
+
+  return function (item)
+    return utils.extract_value(item, getter)
+  end
+end
+
 return utils

@@ -54,7 +54,7 @@ function processors.fuzzy(list, input, options)
     return score
   end
 
-  local attr = options.attr
+  local attr_getter = utils.prepare_attr_getter(options.attr)
 
   local max_score = 0
   local max_len = 0
@@ -62,7 +62,7 @@ function processors.fuzzy(list, input, options)
   local values = {}
 
   for i, item in pairs(list) do
-    value = utils.extract_value(item, attr)
+    value = attr_getter(item)
     values[i] = value
 
     max_len = math.max(#value, max_len)
@@ -101,12 +101,12 @@ end
 function processors.threshold(list, _, options)
   local output = {}
 
-  local attr = options.attr
+  local attr_getter = utils.prepare_attr_getter(options.attr)
   local threshold = options.threshold
 
   local i = 1
   for _, item in pairs(list) do
-    if utils.extract_value(item, attr)  >= threshold then
+    if attr_getter(item)  >= threshold then
       output[i] = item
 
       i = i + 1
@@ -120,10 +120,10 @@ function processors.unique(list, _, options)
   local hash = {}
   local output = {}
 
-  local attr = options.attr
+  local attr_getter = utils.prepare_attr_getter(options.attr)
 
   for _, item in pairs(list) do
-    local value = utils.extract_value(item, attr)
+    local value = attr_getter(item)
 
     if (not hash[value]) then
       table.insert(output, item)
@@ -135,15 +135,15 @@ function processors.unique(list, _, options)
 end
 
 function processors.sort(list, _, options)
-  local attr = options.attr
+  local attr_getter = utils.prepare_attr_getter(options.attr)
 
   if options.order == "DESC" then
     table.sort(list, function(a, b)
-      return utils.extract_value(a, attr) > utils.extract_value(b, attr)
+      return attr_getter(a) > attr_getter(b)
     end)
   else
     table.sort(list, function(a, b)
-      return utils.extract_value(a, attr) < utils.extract_value(b, attr)
+      return attr_getter(a) < attr_getter(b)
     end)
   end
 
