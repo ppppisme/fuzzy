@@ -14,4 +14,8 @@ function handlers.spawn(item)
   awful.spawn(item.value)
 end
 
+function handlers.callback(item)
+  item.value(item)
+end
+
 return handlers
