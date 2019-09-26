@@ -3,6 +3,7 @@ local fuzzy = {}
 local utils = require("fuzzy.utils")
 
 local box
+local active_box
 
 local function normalize_source_output(items)
   for i, item in pairs (items) do
@@ -24,7 +25,11 @@ function fuzzy.init(options)
 end
 
 function fuzzy.show(options)
-  box.show (
+  if active_box then
+    active_box.hide()
+  end
+
+  active_box = box.show(
     function()
       local source = utils.prepare_source(options.source)
 

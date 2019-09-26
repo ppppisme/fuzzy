@@ -278,6 +278,8 @@ function box.show(source_callback, process_callback, exe_callback, box_options)
       end
     end,
   }
+
+  return box
 end
 
 function box.hide()
