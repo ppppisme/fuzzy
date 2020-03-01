@@ -2,7 +2,6 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
-local gio = require("lgi").Gio
 local math = require("math")
 local utils = require("fuzzy.utils")
 
@@ -196,10 +195,8 @@ function box.show(source_callback, process_callback, exe_callback, box_options)
 
   local list
 
-  gio.Async.call(function ()
-    list = source_callback()
-    update_list(list)
-  end)()
+  list = source_callback()
+  update_list(list)
 
   local processed_list = list
   local active_index = 1
@@ -239,7 +236,7 @@ function box.show(source_callback, process_callback, exe_callback, box_options)
     end,
     changed_callback = function(input)
       local exec_time = utils.exec_time(function ()
-        gio.Async.call(process_wrapper)(list, input)
+        process_wrapper(list, input)
       end)
 
       promptbox_info.widget:set_markup_silently(tostring(exec_time))
