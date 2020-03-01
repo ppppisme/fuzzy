@@ -4,7 +4,7 @@ local utils = require("fuzzy.utils")
 local processors = {}
 
 function processors.fuzzy(list, input, options)
-  local function get_score(str, pattern, max_len)
+  local function get_score(str, pattern)
     str = str:lower()
     pattern = pattern:lower()
 
@@ -16,18 +16,17 @@ function processors.fuzzy(list, input, options)
     end
 
     local i2 = 1
-
+    local i2char = pattern:sub(1, 1)
     local score = 0
-
     local subsequent = false
     local includes_pattern = false
 
     for i1 = 1, len1 do
-      if str:sub(i1, i1) == pattern:sub(i2, i2) then
+      if str:sub(i1, i1) == i2char then
         if subsequent then
           score = score + 1.5
         else
-          score = score + (max_len - i1 + 1) / max_len
+          score = score + (len1 - i1 + 1) / len1
         end
 
         subsequent = true
@@ -42,6 +41,7 @@ function processors.fuzzy(list, input, options)
         end
 
         i2 = i2 + 1
+        i2char = pattern:sub(i2, i2)
       else
         subsequent = false
       end
@@ -55,29 +55,17 @@ function processors.fuzzy(list, input, options)
   end
 
   local attr_getter = utils.prepare_attr_getter(options.attr)
-
   local max_score = 0
-  local max_len = 0
-  local score, value
-  local values = {}
+  local score
 
-  for i, item in pairs(list) do
-    value = attr_getter(item)
-    values[i] = value
-
-    max_len = math.max(#value, max_len)
-  end
-
-  for i, item in pairs(list) do
-    value = values[i]
-
-    score = get_score(value, input, max_len)
+  for _, item in pairs(list) do
+    score = get_score(attr_getter(item), input)
     item.data.fuzzy_score = score
 
     max_score = math.max(score, max_score)
   end
 
-  -- normalize scores to fit in [0, 1] range for convenient filtering
+  -- normalize score to fit in [0, 1] range for convenient filtering
   for _, item in pairs(list) do
     item.data.fuzzy_score = item.data.fuzzy_score / max_score
   end
@@ -100,13 +88,12 @@ end
 
 function processors.threshold(list, _, options)
   local output = {}
-
   local attr_getter = utils.prepare_attr_getter(options.attr)
   local threshold = options.threshold
-
   local i = 1
+
   for _, item in pairs(list) do
-    if attr_getter(item)  >= threshold then
+    if attr_getter(item) >= threshold then
       output[i] = item
 
       i = i + 1
@@ -119,6 +106,7 @@ end
 function processors.unique(list, _, options)
   local hash = {}
   local output = {}
+  local i = 1
 
   local attr_getter = utils.prepare_attr_getter(options.attr)
 
@@ -126,7 +114,9 @@ function processors.unique(list, _, options)
     local value = attr_getter(item)
 
     if (not hash[value]) then
-      table.insert(output, item)
+      output[i] = item
+      i = i + 1
+
       hash[value] = true
     end
   end
