@@ -15,7 +15,7 @@ function sources.path()
 
   local function get_files(dir)
     local output = {}
-    local p = io.popen('find -L "'..dir..'" -type f -printf "%f\n"')
+    local p = io.popen('ls "' .. dir .. '" -1')
     for file in p:lines() do
       table.insert(output, file)
     end
