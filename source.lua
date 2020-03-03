@@ -24,15 +24,20 @@ function sources.path()
   end
 
   local output = {}
+  local hash = {}
 
   for path_dir in string.gmatch(os.getenv("PATH"), "[^%:]+") do
     for _, file in pairs(get_files(path_dir)) do
-      table.insert(output, {
-        title = file,
-        description = path_dir .. "/" .. file,
-        value = file,
-        data = {},
-      })
+      if not hash[file] then
+        hash[file] = true
+
+        table.insert(output, {
+          title = file,
+          description = path_dir .. "/" .. file,
+          value = file,
+          data = {},
+        })
+      end
     end
   end
 
