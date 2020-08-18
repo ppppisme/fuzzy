@@ -35,52 +35,69 @@ local function calc_height()
     + (font_height * 2 + items_margin) * options.lines
 end
 
-local create_item = function()
+local function create_item()
   local font_height = math.ceil(beautiful.get_font_height(beautiful.font))
+
+  local margins = beautiful.fuzzy_margin or {
+    20, 20, 20, 20
+  }
+
+  local item_margin = beautiful.fuzzy_items_margin
 
   return {
     widget = wibox.container.background(),
-    layout = wibox.layout.fixed.horizontal,
     {
-      widget = wibox.container.margin(),
-      right = beautiful.fuzzy_image_spacing or 16,
+      widget = wibox.container.margin,
+      right = margins[2],
+      left = margins[4],
+      top = item_margin / 2,
+      bottom = item_margin / 2,
       {
-        widget = wibox.widget.imagebox(),
-        forced_width = beautiful.fuzzy_image_size or 32,
-        forced_height = beautiful.fuzzy_image_size or 32,
-        resize = true,
+        layout = wibox.layout.fixed.horizontal,
+        {
+          widget = wibox.container.margin(),
+          right = beautiful.fuzzy_image_spacing or 16,
+          {
+            widget = wibox.widget.imagebox(),
+            forced_width = beautiful.fuzzy_image_size or 32,
+            forced_height = beautiful.fuzzy_image_size or 32,
+            resize = true,
+          },
+        },
+        {
+          layout = wibox.layout.fixed.vertical,
+          {
+            widget = wibox.widget.textbox(),
+            forced_height = font_height,
+          },
+          {
+            widget = wibox.widget.textbox(),
+            forced_height = font_height,
+          },
+        },
       },
     },
-    {
-      widget = wibox.container.background(),
-      layout = wibox.layout.fixed.vertical,
-      {
-        widget = wibox.widget.textbox(),
-        forced_height = font_height,
-      },
-      {
-        widget = wibox.widget.textbox(),
-        forced_height = font_height,
-      },
-    }
   }
 end
 
 local function update_list(items, active_item_index)
   local lines = options.lines
 
-  local active_item_index = active_item_index or 1
+  active_item_index = active_item_index or 1
   local first_index = math.floor((active_item_index - 1) / lines) * lines + 1
 
   local muted_color = beautiful.fuzzy_fg_muted or beautiful.fg_normal
   local image_spacing = beautiful.fuzzy_image_spacing or 16
+  local default_bg = beautiful.fuzzy_bg
 
   for i = first_index, first_index + lines - 1 do
-    local is_active = i == active_item_index
-
     local title = ""
     local description = ""
     local image = nil
+    local item_bg = default_bg
+
+    local relative_index = ((i - 1) % lines) + 1
+    local list_element = results_list[relative_index][1]
 
     if items[i] then
       local item = items[i]
@@ -88,8 +105,9 @@ local function update_list(items, active_item_index)
       if item.title then
         title = item.title
 
-        if is_active then
-          title = "<span underline='single' style='italic'>" .. title .. "</span>"
+        if i == active_item_index then
+          title = "<span weight='bold'>" .. title .. "</span>"
+          item_bg = '#ffffff11'
         end
       end
       if item.description then
@@ -100,23 +118,24 @@ local function update_list(items, active_item_index)
       end
     end
 
-    local relative_index = ((i - 1) % lines) + 1
+    list_element.widget:set_bg(item_bg)
 
-    local list_element = results_list[relative_index][1]
+    local item_content_element = list_element[1][1]
+
     if image ~= nil then
-      list_element[1][1].widget:set_image(image)
+      item_content_element[1][1].widget:set_image(image)
 
-      list_element[1][1].widget.visible = true
-      list_element[1].widget:set_right(image_spacing)
+      item_content_element[1][1].widget.visible = true
+      item_content_element[1].widget:set_right(image_spacing)
     else
-      list_element[1][1].widget:set_image(nil)
+      item_content_element[1][1].widget:set_image(nil)
 
-      list_element[1].widget:set_right(0)
-      list_element[1][1].widget.visible = false
+      item_content_element[1].widget:set_right(0)
+      item_content_element[1][1].widget.visible = false
     end
 
-    list_element[2][1].widget:set_markup_silently(title)
-    list_element[2][2].widget:set_markup_silently(description)
+    item_content_element[2][1].widget:set_markup_silently(title)
+    item_content_element[2][2].widget:set_markup_silently(description)
   end
 end
 
@@ -137,47 +156,49 @@ function box.init(_options)
   }
 
   promptbox_info = {
-    align  = "right",
+    align = "right",
     valign = "center",
     widget = wibox.widget.textbox(),
   }
 
+  local margins = beautiful.fuzzy_margin or {
+    20, 20, 20, 20
+  }
+
   local promptbox_container = {
-    layout = wibox.layout.align.horizontal,
-    promptbox,
-    promptbox_info,
+    widget = wibox.container.margin,
+    right = margins[2],
+    left = margins[4],
+    {
+      layout = wibox.layout.align.horizontal,
+      promptbox,
+      promptbox_info,
+    },
   }
 
   results_list = {
-    widget = wibox.container.background(),
+    widget = wibox.container.background,
     layout = wibox.layout.fixed.vertical,
   }
 
   for _ = 1, options.lines do
     table.insert(results_list, {
       widget = wibox.container.margin,
-      bottom = beautiful.fuzzy_items_margin or 10,
       create_item(),
     })
   end
 
-  local margins = beautiful.fuzzy_margin or {
-    20, 20, 20, 20
-  }
-
   widget:setup {
-      layout = wibox.container.margin,
-      top = margins[1],
-      right = margins[2],
-      bottom = margins[3],
-      left = margins[4],
-      {
-        layout = wibox.layout.fixed.vertical,
-        spacing = beautiful.fuzzy_prompt_spacing or 16,
-        promptbox_container,
-        results_list,
-      }
+    layout = wibox.container.margin,
+    top = margins[1],
+    bottom = margins[3],
+    {
+      layout = wibox.layout.fixed.vertical,
+      spacing = beautiful.fuzzy_prompt_spacing or 16,
+      promptbox_container,
+      results_list,
     }
+  }
 end
 
 function box.show(source_callback, process_callback, exe_callback, box_options)
